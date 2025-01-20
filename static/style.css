@@ -1,0 +1,173 @@
+/* General Page Styling */
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Main Layout */
+#container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+  margin-top: 20px;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Guess Grid Container */
+#guess-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Button Positioned Above Possible Words */
+#button-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px; 
+  margin-bottom: 10px;
+}
+
+#button-container .btn {
+  width: auto;
+  font-size: 16px;
+  padding: 10px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+#button-container .btn:hover {
+  opacity: 0.8;
+}
+
+/* Reset Button Styling */
+.reset-btn {
+  background-color: #dc3545; /* Red Reset Button */
+  color: white;
+}
+
+.reset-btn:hover {
+  background-color: #c82333;
+}
+
+/* Guess Grid */
+#guess-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.guess-row {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.guess-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Letter Input Boxes */
+.letter-input {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: 2px solid black;
+  background-color: lightgray;
+  transition: background 0.2s ease-in-out;
+}
+
+/* Radio Buttons for Color Selection */
+.radio-group {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+/* Hide actual radio buttons */
+.radio-group input[type="radio"] {
+  display: none;
+}
+
+/* Label styles (emoji buttons) */
+.yellow-label, .green-label {
+  font-size: 24px;
+  padding: 5px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.yellow-label:hover, .green-label:hover {
+  transform: scale(1.1);
+}
+
+/* Right Panel: Possible Words */
+#words-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 250px;
+  text-align: center;
+}
+
+/* Scrollable Word List */
+#words-list {
+  list-style-type: none;
+  padding: 10px;
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  width: 100%;
+}
+
+#words-list li {
+  font-size: 18px;
+  padding: 5px;
+  transition: background 0.3s;
+  text-align: left;
+  text-transform: uppercase; /* Ensure words appear in all caps */
+}
+
+#words-list li:hover {
+  background-color: #e0e0e0;
+}
+
+
+#suggested-words {
+  list-style-type: none;
+  padding: 10px;
+  max-height: 150px; /* Smaller than full word list */
+  overflow-y: auto;
+  border: 2px solid #007bff;
+  background-color: #eef5ff;
+  width: 100%;
+}
+
+#suggested-words li {
+  font-size: 18px;
+  padding: 5px;
+  font-weight: bold;
+  color: #0056b3;
+  transition: background 0.3s;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+#suggested-words li:hover {
+  background-color: #cfe2ff;
+}

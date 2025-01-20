@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Solver</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Wordle Solver</h1>
+
+    <div id="container">
+        <!-- Left: Guess Grid -->
+        <div id="guess-container">
+            <form id="wordle-form" method="POST">
+                <h2>Enter Your Guesses</h2>
+
+                <!-- Move Button Above Grid -->
+                <div id="button-container">
+                    <button type="submit" class="btn">Find Words</button>
+                    <button type="button" class="btn reset-btn" id="reset-button">Reset</button>
+
+                </div>
+
+                <div id="guess-grid">
+                    {% for row in range(6) %}
+                        <div class="guess-row">
+                            {% for col in range(5) %}
+                                <div class="guess-box">
+                                    <input 
+                                        type="text" 
+                                        id="guess_{{ row }}_letter_{{ col }}"
+                                        name="guess_{{ row }}_letter_{{ col }}" 
+                                        maxlength="1" 
+                                        placeholder=" " 
+                                        class="letter-input"
+                                        value="{% if guesses and row < guesses|length and col < guesses[row].letters|length %}{{ guesses[row].letters[col] }}{% endif %}"
+                                    >
+
+                                    <div class="radio-group">
+                                        <input type="radio" id="yellow_{{ row }}_{{ col }}" name="guess_{{ row }}_status_{{ col }}" value="Yellow"
+                                            {% if guesses and row < guesses|length and col < guesses[row].status|length and guesses[row].status[col] == 'Yellow' %}checked{% endif %}>
+                                        <label for="yellow_{{ row }}_{{ col }}" class="yellow-label">🟨</label>
+                                    
+                                        <input type="radio" id="green_{{ row }}_{{ col }}" name="guess_{{ row }}_status_{{ col }}" value="Green"
+                                            {% if guesses and row < guesses|length and col < guesses[row].status|length and guesses[row].status[col] == 'Green' %}checked{% endif %}>
+                                        <label for="green_{{ row }}_{{ col }}" class="green-label">🟩</label>
+                                    </div>
+                                    
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </form>
+        </div>
+
+        <!-- Right: Possible Words -->
+        <div id="words-container">
+            <h2>Best Suggestions</h2>
+            <ul id="suggested-words">
+                {% for word in best_starting_words %}
+                    <li>{{ word }}</li>
+                {% endfor %}
+            </ul>
+
+            <h2 id="possible-words-header" style="display: none;">Possible Words</h2>
+            <ul id="words-list" style="display: none;"></ul>
+        </div>
+    </div>
+
+
+    <script>
+        document.getElementById("wordle-form").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent form from reloading the page
+    
+            const formData = new FormData(this);
+            const guesses = [];
+    
+            // Parse form data into the expected format
+            for (let row = 0; row < 6; row++) {
+                const letters = [];
+                const status = [];
+    
+                for (let col = 0; col < 5; col++) {
+                    const letter = formData.get(`guess_${row}_letter_${col}`);
+                    const state = formData.get(`guess_${row}_status_${col}`);
+    
+                    if (letter) {
+                        letters.push(letter);
+                        status.push(state || "Gray"); // Default to "Gray" if no state is selected
+                    }
+                }
+    
+                if (letters.length > 0) {
+                    guesses.push({ letters, status });
+                }
+            }
+    
+            // Send the data to the backend
+            fetch("/filter_words", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ guesses }),
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                // Show the full word list only after the first search
+                document.getElementById("possible-words-header").style.display = "block";
+                document.getElementById("words-list").style.display = "block";
+
+                // Update possible words list
+                const wordsList = document.getElementById("words-list");
+                wordsList.innerHTML = "";
+                data.filtered_words.forEach((word) => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = word;
+                    wordsList.appendChild(listItem);
+                });
+
+                // Update suggested words list
+                const suggestedList = document.getElementById("suggested-words");
+                suggestedList.innerHTML = "";
+                data.suggested_words.forEach((word) => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = word;
+                    suggestedList.appendChild(listItem);
+                });
+            })
+            
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+        });
+    
+        // Restore Color Highlighting for Letter Inputs
+        document.querySelectorAll('.radio-group input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                let letterInput = this.closest('.guess-box').querySelector('.letter-input');
+                if (this.value === 'Yellow') {
+                    letterInput.style.backgroundColor = 'gold';
+                } else if (this.value === 'Green') {
+                    letterInput.style.backgroundColor = 'lightgreen';
+                }
+            });
+    
+            // Trigger initial color change on page load (for persisted values)
+            if (radio.checked) {
+                let letterInput = radio.closest('.guess-box').querySelector('.letter-input');
+                if (radio.value === 'Gray') {
+                    letterInput.style.backgroundColor = 'lightgray';
+                } else if (radio.value === 'Yellow') {
+                    letterInput.style.backgroundColor = 'gold';
+                } else if (radio.value === 'Green') {
+                    letterInput.style.backgroundColor = 'lightgreen';
+                }
+            }
+        });
+    
+        // Reset Button Functionality
+        document.getElementById("reset-button").addEventListener("click", function() {
+            document.getElementById("wordle-form").reset(); // Reset the form
+    
+            // Clear possible words & suggestions
+            document.getElementById("words-list").innerHTML = "";
+            document.getElementById("suggested-words").innerHTML = "";
+    
+            // Reset input colors
+            document.querySelectorAll(".letter-input").forEach(input => {
+                input.style.backgroundColor = "lightgray"; // Default background
+            });
+        });
+    </script>
+
+</body>
+</html>    
